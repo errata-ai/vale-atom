@@ -1,0 +1,23 @@
+{
+  "name": "vale-server",
+  "main": "./lib/init",
+  "version": "1.0.0",
+  "description": "An Atom client for Vale Server.",
+  "keywords": [],
+  "repository": "https://github.com/errata-ai/vale-atom",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.4.0 <2.0.0"
+  },
+  "dependencies": {
+    "request": "latest",
+    "url-join": "latest"
+  },
+  "providedServices": {
+    "linter": {
+      "versions": {
+        "2.0.0": "provideLinter"
+      }
+    }
+  }
+}
