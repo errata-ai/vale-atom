@@ -1,7 +1,7 @@
 {
   "name": "vale-server",
   "main": "./lib/init",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "An Atom client for Vale Server.",
   "keywords": [],
   "repository": "https://github.com/errata-ai/vale-atom",
