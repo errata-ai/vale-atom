@@ -79,34 +79,38 @@ module.exports =
               format: ext
               text: textEditor.getText()
           , (err, res, output) ->
+            if not err and res.statusCode is 200
+              if output.length <= 3
+                output = "{\"stdin#{ext}\": []}"
 
-            if output.length <= 3 # if empty object
-              output = "{\"stdin#{ext}\": []}"
+              feedback = JSON.parse(output)["stdin#{ext}"]
+              messages = []
 
-            feedback = JSON.parse(output)["stdin#{ext}"]
-            messages = []
+              for alert in feedback
+                atomMessageLine = alert.Line - 1
+                atomMessageRow  = alert.Span[0] - 1
 
-            for alert in feedback
-              atomMessageLine = alert.Line - 1
-              atomMessageRow  = alert.Span[0] - 1
+                rule = alert.Check.split '.'
+                messages.push
+                  severity: if alert.Severity == 'suggestion' then 'info' else alert.Severity
+                  location:
+                    file: loc
+                    position: [
+                      [atomMessageLine, atomMessageRow]
+                      [atomMessageLine, alert.Span[1]]
+                    ]
+                  excerpt: alert.Message
+                  linterName: "[Vale Server] #{alert.Check}"
+                  url: alert.Link
+                  description: alert.Description
+                  reference:
+                    file: path.join styles, rule[0], rule[1] + '.yml'
 
-              rule = alert.Check.split '.'
-              messages.push
-                severity: if alert.Severity == 'suggestion' then 'info' else alert.Severity
-                location:
-                  file: loc
-                  position: [
-                    [atomMessageLine, atomMessageRow]
-                    [atomMessageLine, alert.Span[1]]
-                  ]
-                excerpt: alert.Message
-                linterName: "[Vale Server] #{alert.Check}"
-                url: alert.Link
-                description: alert.Description
-                reference:
-                  file: path.join styles, rule[0], rule[1] + '.yml'
-
-            resolve messages
+              resolve messages
+            else
+              atom.notifications.addError '[Vale Server] could not connect.',
+                detail: err
+                dismissable: true
 
         return new Promise (resolve, reject) =>
           runLinter(resolve)
