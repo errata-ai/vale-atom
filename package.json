@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "request": "latest",
-    "url-join": "latest"
+    "url-join": "latest",
+    "open": "6.4.0"
   },
   "providedServices": {
     "linter": {

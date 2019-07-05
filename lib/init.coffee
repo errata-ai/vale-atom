@@ -1,4 +1,5 @@
 path    = require 'path'
+open    = require 'open'
 request = require 'request'
 urljoin = require 'url-join'
 
@@ -47,6 +48,9 @@ module.exports =
     @subscriptions.add atom.config.observe 'vale-server.grammarScopes',
       (grammarScopes) =>
         @grammarScopes = grammarScopes
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'vale-server:open-dashboard', ->
+      open('http://localhost:7777/')
 
   deactivate: =>
       @subscriptions.dispose()
