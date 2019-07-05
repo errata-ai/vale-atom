@@ -1,5 +1,6 @@
 path    = require 'path'
 request = require 'request'
+urljoin = require 'url-join'
 
 {CompositeDisposable} = require 'atom'
 
@@ -12,21 +13,24 @@ module.exports =
 
     lintOnFly:
       type: 'boolean'
-      title: 'Run Vale Server on change (not only after saving).'
+      title: 'Run Vale Server on file changes (not only after saving).'
       default: true
 
     grammarScopes:
       type: 'array'
-      title: 'List of scopes Vale Server will lint.'
+      title: 'List of scopes that Vale Server will lint.'
       default: [
-        'source.gfm'
-        'gfm.restructuredtext'
-        'source.asciidoc'
+        # Markdown
         'text.md'
+        'source.gfm'
+        # reStructuredText
+        'text.restructuredtext'
+        # AsciiDoc
+        'source.asciidoc'
+        # Plain text
         'text.git-commit'
         'text.plain'
         'text.plain.null-grammar'
-        'text.restructuredtext'
       ]
 
   activate: =>
@@ -55,57 +59,54 @@ module.exports =
       lintsOnChange: @lintOnFly
 
       lint: (textEditor) =>
-        filePath = textEditor.getPath()
-        inputText = textEditor.getText()
-        fileExtension = path.extname(filePath)
-        fileDirectory = path.dirname(filePath)
+        loc = textEditor.getPath()
+        ext = path.extname(loc)
+
         output = ''
+        styles = ''
+
+        request.get
+          url: urljoin(@valePath, 'path')
+          json: true
+        , (err, res, body) ->
+          if not err and res.statusCode is 200
+            styles = body.path
 
         runLinter = (resolve) =>
-          onError = ({error,handle}) =>
-            atom.notifications.addError "Error running #{@valePath}",
-              detail: "#{error.message}"
-              dismissable: true
-            handle()
-            return []
-
-          onReq = ({output}) =>
-            if output.length <= 3 # if empty object
-              output = "{\"stdin#{fileExtension}\":[]}"
-
-            feedback = JSON.parse(output)["stdin#{fileExtension}"] or
-              JSON.parse(output)['stdinunknown']
-            messages = []
-            for message in feedback
-              atomMessageLine = message.Line - 1
-              atomMessageRow = message.Span[0] - 1
-              isDuplicate = messages.some (existingMessage) =>
-                  existingMessage.range[0][0] == atomMessageLine and
-                  existingMessage.range[0][1] == atomMessageRow
-              if not isDuplicate
-                messages.push
-                  severity: if message.Severity == 'suggestion' then 'info' else message.Severity
-                  text: message.Message
-                  filePath: filePath
-                  range: [
-                    [atomMessageLine, atomMessageRow]
-                    [atomMessageLine, message.Span[1]]
-                  ]
-
-              resolve messages
-
           request.post
-            url: @valePath,
+            url: urljoin(@valePath, 'vale'),
             form:
-              format: fileExtension
-              text: inputText
-          , (err, res, body) ->
-            if body
-              onReq body
-            else
-              atom.notifications.addError "[Vale Server] could not connect to '#{@valePath}'.",
-                detail: err
-                dismissable: true
+              format: ext
+              text: textEditor.getText()
+          , (err, res, output) ->
+
+            if output.length <= 3 # if empty object
+              output = "{\"stdin#{ext}\": []}"
+
+            feedback = JSON.parse(output)["stdin#{ext}"]
+            messages = []
+
+            for alert in feedback
+              atomMessageLine = alert.Line - 1
+              atomMessageRow  = alert.Span[0] - 1
+
+              rule = alert.Check.split '.'
+              messages.push
+                severity: if alert.Severity == 'suggestion' then 'info' else alert.Severity
+                location:
+                  file: loc
+                  position: [
+                    [atomMessageLine, atomMessageRow]
+                    [atomMessageLine, alert.Span[1]]
+                  ]
+                excerpt: alert.Message
+                linterName: "[Vale Server] #{alert.Check}"
+                url: alert.Link
+                description: alert.Description
+                reference:
+                  file: path.join styles, rule[0], rule[1] + '.yml'
+
+            resolve messages
 
         return new Promise (resolve, reject) =>
           runLinter(resolve)
