@@ -56,3 +56,7 @@ To get started,
         <td width="50%">Quickly browse a rule's source material.</td>
     </tr>
 </table>
+
+## Credits
+
+> This package was inspired by [@TimKam](https://github.com/TimKam)'s work on the [`atomic-vale`](https://github.com/TimKam/atomic-vale) package.
