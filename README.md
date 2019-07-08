@@ -6,7 +6,9 @@ To get started,
 
 1. Install [Vale Server](https://errata.ai/vale-server/); then
 
-2. install `vale-server` via the [Atom Settings View](http://flight-manual.atom.io/using-atom/sections/atom-packages/).
+2. Install the [Atom Linter package](https://atom.io/packages/linter) and its dependecies.
+
+3. install `vale-server` via the [Atom Settings View](http://flight-manual.atom.io/using-atom/sections/atom-packages/).
 
 ## Features
 
