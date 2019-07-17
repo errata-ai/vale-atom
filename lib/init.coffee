@@ -81,7 +81,8 @@ module.exports =
             url: urljoin(@valePath, 'vale'),
             form:
               format: ext
-              text: textEditor.getText()
+              text: textEditor.getText(),
+              path: path.dirname(loc)
           , (err, res, output) ->
             if not err and res.statusCode is 200
               if output.length <= 3
