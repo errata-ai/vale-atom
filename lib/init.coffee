@@ -13,11 +13,12 @@ suggestions = (a, pos) ->
     form:
       alert: JSON.stringify(a)
   , (err, res, ret) ->
-    for suggestion in JSON.parse(ret)['suggestions']
-      fixes.push
-        position: pos
-        currentText: a.Match
-        replaceWith: suggestion
+    if not err and res.statusCode is 200
+      for suggestion in JSON.parse(ret)['suggestions']
+        fixes.push
+          position: pos
+          currentText: a.Match
+          replaceWith: suggestion
 
   fixes
 
