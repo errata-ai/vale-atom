@@ -5,6 +5,23 @@ urljoin = require 'url-join'
 
 {CompositeDisposable} = require 'atom'
 
+suggestions = (a, pos) ->
+  fixes = []
+
+  request.post
+    url: 'http://localhost:7777/suggest',
+    form:
+      alert: JSON.stringify(a)
+  , (err, res, ret) ->
+    for suggestion in JSON.parse(ret)['suggestions']
+      fixes.push
+        position: pos
+        currentText: a.Match
+        replaceWith: suggestion
+
+  fixes
+
+
 module.exports =
   config:
     valePath:
@@ -90,18 +107,18 @@ module.exports =
 
               for f, alerts of feedback
                 for alert in alerts
-                  atomMessageLine = alert.Line - 1
-                  atomMessageRow  = alert.Span[0] - 1
-
                   rule = alert.Check.split '.'
+                  floc = [
+                    [alert.Line - 1, alert.Span[0] - 1]
+                    [alert.Line - 1, alert.Span[1]]
+                  ]
+
                   messages.push
                     severity: if alert.Severity == 'suggestion' then 'info' else alert.Severity
+                    solutions: suggestions(alert, floc)
                     location:
                       file: loc
-                      position: [
-                        [atomMessageLine, atomMessageRow]
-                        [atomMessageLine, alert.Span[1]]
-                      ]
+                      position: floc
                     excerpt: alert.Message
                     linterName: "[Vale Server] #{alert.Check}"
                     url: alert.Link
