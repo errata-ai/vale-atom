@@ -2,6 +2,7 @@ path    = require 'path'
 open    = require 'open'
 request = require 'request'
 urljoin = require 'url-join'
+fs      = require 'fs'
 
 {CompositeDisposable} = require 'atom'
 
@@ -14,11 +15,12 @@ suggestions = (a, pos) ->
       alert: JSON.stringify(a)
   , (err, res, ret) ->
     if not err and res.statusCode is 200
-      for suggestion in JSON.parse(ret)['suggestions']
-        fixes.push
-          position: pos
-          currentText: a.Match
-          replaceWith: suggestion
+      if ret
+        for suggestion in JSON.parse(ret)['suggestions']
+          fixes.push
+            position: pos
+            currentText: a.Match
+            replaceWith: suggestion
 
   fixes
 
@@ -96,14 +98,16 @@ module.exports =
 
         runLinter = (resolve) =>
           request.post
-            url: urljoin(@valePath, 'vale'),
+            url: urljoin(@valePath, 'file'),
             form:
-              format: ext
-              text: textEditor.getText(),
+              file: loc,
               path: path.dirname(loc)
           , (err, res, output) ->
             if not err and res.statusCode is 200
-              feedback = JSON.parse(output)
+              results = JSON.parse(output)
+              content = fs.readFileSync(results.path, 'utf8')
+
+              feedback = JSON.parse(content.toString())
               messages = []
 
               for f, alerts of feedback
