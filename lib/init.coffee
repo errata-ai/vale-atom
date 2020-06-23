@@ -6,11 +6,10 @@ fs      = require 'fs'
 
 {CompositeDisposable} = require 'atom'
 
-suggestions = (a, pos) ->
+suggestions = (a, pos, path) ->
   fixes = []
-
   request.post
-    url: 'http://localhost:7777/suggest',
+    url: urljoin(path, 'suggest'),
     form:
       alert: JSON.stringify(a)
   , (err, res, ret) ->
@@ -24,7 +23,6 @@ suggestions = (a, pos) ->
 
   fixes
 
-
 module.exports =
   config:
     valePath:
@@ -35,6 +33,11 @@ module.exports =
     lintOnFly:
       type: 'boolean'
       title: 'Run Vale Server on file changes (not only after saving).'
+      default: true
+
+    offerSuggestions:
+      type: 'boolean'
+      title: 'Offer potential solutions to alerts using the \'Fix\' button.'
       default: true
 
     grammarScopes:
@@ -65,12 +68,13 @@ module.exports =
       (lintOnFly) =>
         @lintOnFly = lintOnFly
 
+    @subscriptions.add atom.config.observe 'vale-server.offerSuggestions',
+      (offerSuggestions) =>
+        @offerSuggestions = offerSuggestions
+
     @subscriptions.add atom.config.observe 'vale-server.grammarScopes',
       (grammarScopes) =>
         @grammarScopes = grammarScopes
-
-    @subscriptions.add atom.commands.add 'atom-workspace', 'vale-server:open-dashboard', ->
-      open('http://localhost:7777/')
 
   deactivate: =>
       @subscriptions.dispose()
@@ -97,6 +101,9 @@ module.exports =
             styles = body.path
 
         runLinter = (resolve) =>
+          instance = @valePath
+          fixes = @offerSuggestions
+
           request.post
             url: urljoin(@valePath, 'file'),
             form:
@@ -120,7 +127,7 @@ module.exports =
 
                   messages.push
                     severity: if alert.Severity == 'suggestion' then 'info' else alert.Severity
-                    solutions: suggestions(alert, floc)
+                    solutions: if fixes then suggestions(alert, floc, instance) else []
                     location:
                       file: loc
                       position: floc
