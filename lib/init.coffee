@@ -40,23 +40,6 @@ module.exports =
       title: 'Offer potential solutions to alerts using the \'Fix\' button.'
       default: true
 
-    grammarScopes:
-      type: 'array'
-      title: 'List of scopes that Vale Server will lint.'
-      default: [
-        # Markdown
-        'text.md'
-        'source.gfm'
-        # reStructuredText
-        'text.restructuredtext'
-        # AsciiDoc
-        'source.asciidoc'
-        # Plain text
-        'text.git-commit'
-        'text.plain'
-        'text.plain.null-grammar'
-      ]
-
   activate: =>
     @subscriptions = new CompositeDisposable
 
@@ -82,7 +65,7 @@ module.exports =
   provideLinter: =>
     provider =
       name: 'Vale Server'
-      grammarScopes: @grammarScopes
+      grammarScopes: '*'
       scope: 'file'
       lintsOnChange: @lintOnFly
 
