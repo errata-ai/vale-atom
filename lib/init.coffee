@@ -16,10 +16,20 @@ suggestions = (a, pos, path) ->
     if not err and res.statusCode is 200
       if ret
         for suggestion in JSON.parse(ret)['suggestions']
-          fixes.push
-            position: pos
-            currentText: a.Match
-            replaceWith: suggestion
+          if a.Action.Name is 'remove'
+            # We need to add a character to avoid leaving a double space when
+            # deleting.
+            pos[0] = [pos[0][0], pos[0][1] - 1]
+            console.log pos, a.Match
+            fixes.push
+              position: pos
+              currentText: ' ' + a.Match
+              replaceWith: suggestion
+          else
+            fixes.push
+              position: pos
+              currentText: a.Match
+              replaceWith: suggestion
 
   fixes
 
@@ -65,7 +75,7 @@ module.exports =
   provideLinter: =>
     provider =
       name: 'Vale Server'
-      grammarScopes: '*'
+      grammarScopes: ['*']
       scope: 'file'
       lintsOnChange: @lintOnFly
 
