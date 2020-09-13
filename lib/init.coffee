@@ -52,7 +52,6 @@ suggestions = (a, pos, path) ->
             # We need to add a character to avoid leaving a double space when
             # deleting.
             pos[0] = [pos[0][0], pos[0][1] - 1]
-            console.log pos, a.Match
             fixes.push
               position: pos
               currentText: ' ' + a.Match
