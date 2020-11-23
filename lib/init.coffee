@@ -16,8 +16,9 @@ handleJSON = (content, instance, fixes, loc, styles, offset) ->
   messages = []
 
   if feedback.Code and feedback.Text
-    atom.notifications.addWarning '[Vale Server] Skipping lint',
+    atom.notifications.addWarning '[Vale Server] Couldn\'t lint file',
       detail: feedback.Text
+      description: if feedback.Path then feedback.Path else null
       dismissable: true
     return messages
 
