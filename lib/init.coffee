@@ -16,7 +16,7 @@ handleJSON = (content, instance, fixes, loc, styles, offset) ->
   messages = []
 
   if feedback.Code and feedback.Text
-    atom.notifications.addError '[Vale Server] Runtime error',
+    atom.notifications.addWarning '[Vale Server] Skipping lint',
       detail: feedback.Text
       dismissable: true
     return messages
