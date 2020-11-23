@@ -15,6 +15,13 @@ handleJSON = (content, instance, fixes, loc, styles, offset) ->
   feedback = JSON.parse(content.toString())
   messages = []
 
+  if feedback.Code and feedback.Text
+    atom.notifications.addError '[Vale Server] Runtime error',
+      detail: feedback.Text
+      dismissable: true
+    return messages
+
+  messages = []
   for f, alerts of feedback
     for alert in alerts
       rule = alert.Check.split '.'
