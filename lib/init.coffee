@@ -86,8 +86,8 @@ module.exports =
 
     offerSuggestions:
       type: 'boolean'
-      title: 'Offer potential solutions to alerts using the \'Fix\' button.'
-      default: true
+      title: 'Offer potential solutions to alerts using the \'Fix\' button. NOTE: For performance reasons, this requires the lintContext setting to be set to -1.'
+      default: false
 
     lintContext:
       type: 'integer'
@@ -121,7 +121,7 @@ module.exports =
       name: 'Vale Server'
       grammarScopes: ['*']
       scope: 'file'
-      lintsOnChange: @lintOnFly
+      lintsOnChange: false
 
       lint: (textEditor) =>
         loc = textEditor.getPath()
@@ -139,9 +139,9 @@ module.exports =
 
         runLinter = (resolve) =>
           instance = @valePath
-          fixes = @offerSuggestions
-
           context = @lintContext
+
+          fixes = @offerSuggestions and context < 0
           if context < 0 || (context > 0 && textEditor.getLineCount() >= context)
             range = textEditor.getCurrentParagraphBufferRange()
             paragraph = textEditor.getTextInBufferRange(range)
