@@ -113,6 +113,14 @@ module.exports =
       (lintContext) =>
         @lintContext = lintContext
 
+    @subscriptions.add atom.commands.add 'atom-workspace', 'vale-server:show-report', ->
+      editor = atom.workspace.getActiveTextEditor()
+      if editor
+        name = path.dirname(editor.getPath())
+        host = atom.config.get('vale-server.valePath')
+        server = urljoin(host, "/summary.html?path=#{name}")
+        open(server)
+
   deactivate: =>
       @subscriptions.dispose()
 

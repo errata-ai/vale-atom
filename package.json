@@ -10,9 +10,9 @@
     "atom": ">=1.4.0 <2.0.0"
   },
   "dependencies": {
+    "open": "^6.4.0",
     "request": "latest",
-    "url-join": "latest",
-    "open": "6.4.0"
+    "url-join": "latest"
   },
   "providedServices": {
     "linter": {
