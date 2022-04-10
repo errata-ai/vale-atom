@@ -1,10 +1,10 @@
 # `vale-atom`
 
-> An Atom client for [Vale Server](https://errata.ai/vale-server/).
+> An Atom client for [Vale Server](https://github.com/errata-ai/vale-server).
 
 To get started,
 
-1. Install [Vale Server](https://errata.ai/vale-server/); then
+1. Install [Vale Server](https://github.com/errata-ai/vale-server); then
 
 2. Install the [Atom Linter package](https://atom.io/packages/linter) and its dependecies.
 
