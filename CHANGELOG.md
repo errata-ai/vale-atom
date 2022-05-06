@@ -1,3 +1,7 @@
+## 1.8.1
+
+* Downgrade `url-join` dep
+
 ## 1.6.0
 
 * Make 'Actions' an optional feature.

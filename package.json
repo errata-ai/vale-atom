@@ -7,12 +7,12 @@
   "repository": "https://github.com/errata-ai/vale-atom",
   "license": "MIT",
   "engines": {
-    "atom": ">=1.4.0 <2.0.0"
+    "atom": ">=1.45.0 <2.0.0"
   },
   "dependencies": {
     "open": "^6.4.0",
-    "request": "latest",
-    "url-join": "latest"
+    "request": "^2.88.2",
+    "url-join": "^4.0.1"
   },
   "providedServices": {
     "linter": {
